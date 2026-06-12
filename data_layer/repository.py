@@ -211,14 +211,14 @@ def load_users_from_sheet():
         try:
             ws = sheet.worksheet("Users")
         except:
-            ws = sheet.add_worksheet("Users", 10, 4)
-            ws.append_row(["username", "password_hash", "role", "centers"])
+            ws = sheet.add_worksheet("Users", 10, 5)
+            ws.append_row(["username", "password_hash", "plain_password", "role", "centers"])
             # Insert default admin
             import hashlib, secrets
             salt = secrets.token_hex(16)
             h = hashlib.pbkdf2_hmac("sha256", "admin123".encode(), salt.encode(), 100_000).hex()
             admin_hash = f"pbkdf2$100000${salt}${h}"
-            ws.append_row(["admin", admin_hash, "admin", "*"])
+            ws.append_row(["admin", admin_hash, "admin123", "admin", "*"])
             return _default_users()
 
         rows = ws.get_all_records()
@@ -231,6 +231,7 @@ def load_users_from_sheet():
             centers = ["*"] if centers_raw == "*" else [c.strip() for c in centers_raw.split(",") if c.strip()]
             users[uname] = {
                 "password_hash": str(r.get("password_hash", "")).strip(),
+                "plain_password": str(r.get("plain_password", "***")).strip(),
                 "role": str(r.get("role", "")).strip(),
                 "centers": centers,
             }
@@ -239,7 +240,7 @@ def load_users_from_sheet():
         return _default_users()
 
 
-def save_user_to_sheet(username, password_hash, role, centers):
+def save_user_to_sheet(username, password_hash, plain_password, role, centers):
     """Thêm hoặc cập nhật user trong sheet"""
     import os
     sheets_id = os.getenv("SHEETS_ID")
@@ -251,15 +252,16 @@ def save_user_to_sheet(username, password_hash, role, centers):
     rows = ws.get_all_records()
 
     # Tìm row có username, nếu có thì update
-    for i, r in enumerate(rows, start=2):  # start=2 vì row 1 là header
+    for i, r in enumerate(rows, start=2):
         if str(r.get("username", "")).strip() == username:
             ws.update(f"B{i}", [[password_hash]])
-            ws.update(f"C{i}", [[role]])
-            ws.update(f"D{i}", [[centers]])
+            ws.update(f"C{i}", [[plain_password]])
+            ws.update(f"D{i}", [[role]])
+            ws.update(f"E{i}", [[centers]])
             return True
 
     # Không có → append
-    ws.append_row([username, password_hash, role, centers])
+    ws.append_row([username, password_hash, plain_password, role, centers])
     return True
 
 
@@ -287,6 +289,7 @@ def _default_users():
     return {
         "admin": {
             "password_hash": f"pbkdf2$100000${salt}${h}",
+            "plain_password": "admin123",
             "role": "admin",
             "centers": ["*"],
         }

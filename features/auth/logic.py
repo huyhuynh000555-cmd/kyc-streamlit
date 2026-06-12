@@ -1,4 +1,4 @@
-"""Password hashing and login validation using Google Sheets as user DB."""
+"""Password management using Google Sheets as user DB."""
 import hashlib
 import secrets
 from data_layer.repository import load_users_from_sheet, save_user_to_sheet, delete_user_from_sheet
@@ -38,7 +38,7 @@ def validate_login(username: str, password: str) -> dict | None:
 def add_user(username: str, password: str, role: str, centers: str) -> bool:
     """Admin adds a new user or updates password."""
     h = hash_password(password)
-    return save_user_to_sheet(username.strip(), h, role.strip(), centers.strip())
+    return save_user_to_sheet(username.strip(), h, password.strip(), role.strip(), centers.strip())
 
 
 def remove_user(username: str) -> bool:

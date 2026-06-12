@@ -108,8 +108,9 @@ def render_admin_page():
                 centers_display = "Tất cả" if "*" in raw_centers else ", ".join(raw_centers)
             else:
                 centers_display = str(raw_centers)
+            plain_pw = info.get("plain_password", "***")
             c1, c2 = st.columns([4, 1])
-            c1.markdown(f"**{u}** — `{info['role']}` — *{centers_display}*")
+            c1.markdown(f"**{u}** — `{info['role']}` — `{plain_pw}` — *{centers_display}*")
             if c2.button("Xóa", key=f"del_{u}"):
                 if u == "admin":
                     st.error("Không thể xóa admin!")
