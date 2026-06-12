@@ -54,7 +54,6 @@ def render_sidebar_header():
 
 def render_admin_page():
     """Admin user management page (main content area)."""
-    from features.auth.logic import load_users_from_sheet, add_user, remove_user
     import streamlit as st
 
     users = load_users_from_sheet()
