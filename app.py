@@ -96,7 +96,7 @@ if age_filter != "Tất cả":
 valid_ids = filtered_students["Student ID"].unique()
 filtered_multi = multi_df[multi_df["Student ID"].isin(valid_ids)]
 
-if page.startswith("📈"):
+if page == "📈 Tổng quan":
     render_overview(filtered_students, filtered_multi)
 elif page == "🔧 Quản lý Users":
     render_admin_page()
