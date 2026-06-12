@@ -63,29 +63,51 @@ def _render_admin_panel():
     users = load_users_from_sheet()
     user_list = sorted(users.keys())
 
+    ALL_CENTERS = [
+        "Bình Phước", "Hùng Vương", "Lê Duẩn", "Nguyễn Khuyến",
+        "Nguyễn Trãi", "Phạm Văn Thuận", "Phước Tân",
+        "Trần Phú", "Trảng Bom", "Võ Thị Sáu",
+    ]
+
     st.markdown("**Thêm / Sửa User**")
     new_user = st.text_input("Username", key="admin_new_user")
     new_pass = st.text_input("Password", type="password", key="admin_new_pass")
     new_role = st.selectbox("Role", ["admin", "bod", "center"], key="admin_new_role")
-    center_hint = "* (tất cả) hoặc Center 1, Center 2"
-    new_centers = st.text_input("Centers", placeholder=center_hint, key="admin_new_centers")
+
+    # ── Chọn trung tâm ──
+    st.markdown("**Phân quyền Trung tâm** *(bắt buộc)*")
+    select_all = st.checkbox("Tất cả trung tâm", key="admin_all_centers")
+    selected_centers = []
+    if not select_all:
+        cols = st.columns(2)
+        for i, c in enumerate(ALL_CENTERS):
+            with cols[i % 2]:
+                if st.checkbox(c, key=f"admin_center_{c}"):
+                    selected_centers.append(c)
+
     if st.button("Lưu User", use_container_width=True):
-        if new_user and new_pass:
-            centers_val = new_centers.strip() if new_centers.strip() else "*"
-            if add_user(new_user, new_pass, new_role, centers_val):
-                st.success(f"Đã lưu user '{new_user}'!")
-                st.rerun()
-            else:
-                st.error("Lỗi khi lưu user!")
-        else:
+        if not new_user or not new_pass:
             st.error("Nhập đủ username + password!")
+            return
+        if new_role == "center" and not select_all and not selected_centers:
+            st.error("Phải chọn ít nhất 1 trung tâm!")
+            return
+
+        centers_val = "*" if (select_all or new_role in ("admin", "bod")) else ",".join(selected_centers)
+        if add_user(new_user, new_pass, new_role, centers_val):
+            st.success(f"Đã lưu user '{new_user}'!")
+            st.rerun()
+        else:
+            st.error("Lỗi khi lưu user!")
 
     st.markdown("---")
     st.markdown("**Danh sách Users**")
     for u in user_list:
         info = users[u]
+        raw_centers = info.get("centers", ["*"])
+        centers_display = "Tất cả" if "*" in raw_centers else ", ".join(raw_centers) if isinstance(raw_centers, list) else raw_centers
         c1, c2 = st.columns([3, 1])
-        c1.markdown(f"`{u}` — **{info['role']}** — `{info.get('centers', ['*'])[0]}`")
+        c1.markdown(f"`{u}` — **{info['role']}** — {centers_display}")
         if c2.button("Xóa", key=f"del_{u}"):
             if u == "admin":
                 st.error("Không thể xóa admin!")
