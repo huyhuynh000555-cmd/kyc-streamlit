@@ -249,6 +249,12 @@ def save_user_to_sheet(username, password_hash, plain_password, role, centers):
     client = _get_gspread_client()
     sheet = client.open_by_key(sheets_id)
     ws = sheet.worksheet("Users")
+
+    # Đảm bảo header có đủ 5 cột
+    headers = ws.row_values(1)
+    if len(headers) < 5 or "plain_password" not in [h.strip().lower() for h in headers]:
+        ws.update("A1:E1", [["username", "password_hash", "plain_password", "role", "centers"]])
+
     rows = ws.get_all_records()
 
     # Tìm row có username, nếu có thì update
