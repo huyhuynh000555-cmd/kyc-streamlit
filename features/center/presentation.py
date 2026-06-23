@@ -172,7 +172,7 @@ def _rich_text_editor(key: str, initial_html: str):
     <script>
     (function() {{
         var el = document.getElementById('{safe_id}');
-        if (!el) {{ console.error('Quill: container #{safe_id} not found'); return; }}
+        if (!el) {{ return; }}
         var quill = new Quill('#{safe_id}', {{
             theme: 'snow',
             modules: {{
@@ -186,11 +186,18 @@ def _rich_text_editor(key: str, initial_html: str):
             }}
         }});
         quill.root.innerHTML = `{escaped}`;
+        // Send value on change via Streamlit component protocol
         function sendValue() {{
-            window.parent.postMessage(
-                {{isStreamlitMessage: true, type: 'streamlit:setComponentValue', value: quill.root.innerHTML}},
-                '*'
-            );
+            var msg = {{
+                isStreamlitMessage: true,
+                type: 'streamlit:setComponentValue',
+                value: quill.root.innerHTML
+            }};
+            window.parent.postMessage(msg, '*');
+            // Also try Streamlit global
+            if (window.Streamlit && window.Streamlit.setComponentValue) {{
+                window.Streamlit.setComponentValue(quill.root.innerHTML);
+            }}
         }}
         quill.on('text-change', sendValue);
         sendValue();
