@@ -125,9 +125,29 @@ def _render_action_points(center_name: str):
 
     if can_edit:
         if st.session_state[edit_state_key]:
+            # Quick-insert buttons
+            st.caption("Chèn nhanh:")
+            bc1, bc2, bc3, bc4, bc5 = st.columns(5)
+            if bc1.button("In đậm", key=f"ap_bold_{center_name}"):
+                st.session_state[f"ap_text_{center_name}"] = (st.session_state.get(f"ap_text_{center_name}", text) or "") + "<b></b> "
+                st.rerun()
+            if bc2.button("Đỏ", key=f"ap_red_{center_name}"):
+                st.session_state[f"ap_text_{center_name}"] = (st.session_state.get(f"ap_text_{center_name}", text) or "") + "<span style='color:red'></span> "
+                st.rerun()
+            if bc3.button("Xanh", key=f"ap_blue_{center_name}"):
+                st.session_state[f"ap_text_{center_name}"] = (st.session_state.get(f"ap_text_{center_name}", text) or "") + "<span style='color:#2196F3'></span> "
+                st.rerun()
+            if bc4.button("Danh sách", key=f"ap_list_{center_name}"):
+                st.session_state[f"ap_text_{center_name}"] = (st.session_state.get(f"ap_text_{center_name}", text) or "") + "<ul>\n<li></li>\n<li></li>\n</ul>"
+                st.rerun()
+            if bc5.button("Xuống dòng", key=f"ap_br_{center_name}"):
+                st.session_state[f"ap_text_{center_name}"] = (st.session_state.get(f"ap_text_{center_name}", text) or "") + "<br>"
+                st.rerun()
+
             new_text = st.text_area(
-                "Nhập action points (HTML: <b>đậm</b>, <span style='color:red'>đỏ</span>, <ul><li>mục</li></ul>):",
-                value=text, height=250, key=f"ap_text_{center_name}"
+                "Nhập action points:",
+                value=st.session_state.get(f"ap_text_{center_name}", text), 
+                height=250, key=f"ap_text_{center_name}"
             )
             # Preview
             if new_text.strip():
