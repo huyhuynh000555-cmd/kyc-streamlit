@@ -164,12 +164,15 @@ def _render_action_points(center_name: str):
 
 
 def _rich_text_editor(key: str, initial_html: str):
-    """Rich text editor using Quill.js. Syncs HTML to hidden text_area via JS."""
+    """Rich text editor using Quill.js. Syncs HTML to st.session_state via JS bridge."""
     safe_id = key.replace(" ", "_").replace("-", "_")
     escaped = initial_html.replace("\\", "\\\\").replace("`", "\\`").replace("$", "\\$")
     
-    # Hidden text area to bridge JS <-> Python
     ta_key = f"{safe_id}_ta"
+    
+    # Ensure session_state key exists
+    if ta_key not in st.session_state:
+        st.session_state[ta_key] = initial_html
     
     html_code = f"""
     <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
@@ -192,22 +195,24 @@ def _rich_text_editor(key: str, initial_html: str):
             }}
         }});
         quill.root.innerHTML = `{escaped}`;
-        // Sync to parent textarea
         function sync() {{
-            var ta = window.parent.document.querySelector('[data-testid="stTextArea"] textarea');
-            if (ta) {{
-                ta.value = quill.root.innerHTML;
+            var pdoc = window.parent.document;
+            // Find ALL textarea elements in Streamlit app
+            var allTas = pdoc.querySelectorAll('textarea');
+            // Write to the LAST one (our hidden bridge)
+            if (allTas.length > 0) {{
+                var ta = allTas[allTas.length - 1];
+                var nativeSetter = Object.getOwnPropertyDescriptor(HTMLTextAreaElement.prototype, 'value').set;
+                nativeSetter.call(ta, quill.root.innerHTML);
                 ta.dispatchEvent(new Event('input', {{ bubbles: true }}));
+                ta.dispatchEvent(new Event('change', {{ bubbles: true }}));
             }}
         }}
         quill.on('text-change', sync);
-        sync();
+        setTimeout(sync, 300);
     }})();
     </script>
     """
-    # Render Quill + hidden text area
     st.components.v1.html(html_code, height=300)
-    # Read from this in session_state
-    if ta_key not in st.session_state:
-        st.session_state[ta_key] = initial_html
-    st.text_area("", value=initial_html, key=ta_key, label_visibility="collapsed", height=1)
+    # Hidden bridge: Streamlit text_area for session_state sync
+    st.text_area("", value=st.session_state[ta_key], key=ta_key, label_visibility="collapsed", height=1)
