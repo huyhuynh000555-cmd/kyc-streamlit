@@ -65,7 +65,7 @@ def render_admin_page():
         "Trần Phú", "Trảng Bom", "Võ Thị Sáu",
     ]
 
-    st.markdown("<h2 style='color:#1A3C5E;'>🔧 Quản lý Users</h2>", unsafe_allow_html=True)
+    st.markdown("<h2 style='color:#1A3C5E;'>Quản lý Users</h2>", unsafe_allow_html=True)
 
     # Pre-fill from edit button
     if "edit_user" not in st.session_state:
@@ -75,7 +75,7 @@ def render_admin_page():
 
     with col_left:
         # ── Block 1: Tạo User mới ──
-        st.markdown("### ➕ Tạo User mới")
+        st.markdown("### Tạo User mới")
         new_user = st.text_input("Username", key="new_user_name")
         new_pass = st.text_input("Password", type="password", key="new_user_pass")
         new_role = st.selectbox("Role", ["admin", "bod", "center"], key="new_user_role")
@@ -105,7 +105,7 @@ def render_admin_page():
 
     with col_right:
         # ── Block 2: Sửa User ──
-        st.markdown("### ✏️ Sửa User")
+        st.markdown("### Sửa User")
         edit_username = st.selectbox("Chọn user cần sửa", [""] + user_list, key="edit_user_select")
         if edit_username:
             info = users[edit_username]

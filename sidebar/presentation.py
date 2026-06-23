@@ -6,22 +6,22 @@ def render_sidebar(students_df, center_list, user=None):
         '<div style="font-size:23px;font-weight:700;color:#1A3C5E;text-align:center;'
         'padding:8px 0 4px;">KYC DASHBOARD</div>', unsafe_allow_html=True)
 
-    pages = ["📈 Tổng quan", "🏢 Theo Center"]
+    pages = ["▸ Tổng quan", "▹ Theo Center"]
     role = (user or {}).get("role", "")
     if role == "admin":
-        pages.append("🔧 Quản lý Users")
+        pages.append("⚙ Quản lý Users")
 
     page = st.sidebar.radio("Chọn trang", pages)
     selected_center = None
 
-    if page == "🏢 Theo Center":
+    if page == "▹ Theo Center":
         selected_center = st.sidebar.selectbox("Chọn Center", center_list, index=0)
         center_df = students_df[students_df["Primary Center"] == selected_center]
         total_hv = center_df["Student ID"].nunique()
         st.sidebar.markdown("---")
         st.sidebar.markdown(
             f"""<div style="background:#e8f0fe;border-radius:8px;padding:12px;font-size:13px;">
-                <b>🏢 {selected_center}</b><br>Học viên: <b>{total_hv}</b>
+                <b>{selected_center}</b><br>Học viên: <b>{total_hv}</b>
             </div>""", unsafe_allow_html=True)
 
     st.sidebar.markdown("---")

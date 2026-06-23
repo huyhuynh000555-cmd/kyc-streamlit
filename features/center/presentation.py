@@ -19,7 +19,7 @@ def render_center(students_all, multi_all, center_name):
     total_students = len(students)
     avg_age = students["Age"].dropna().mean()
     study_abroad = students[students["Có Du Học"] == "Có"]["Student ID"].nunique()
-    styled_header(f"🏢 CENTER: {center_name.upper()}", f"{fmt_num(total_students)} học viên | Cập nhật: 08/06/2026")
+    styled_header(f"CENTER: {center_name.upper()}", f"{fmt_num(total_students)} học viên | Cập nhật: 08/06/2026")
 
     # ── Row 1: Scorecards ──
     cols = st.columns(4)
