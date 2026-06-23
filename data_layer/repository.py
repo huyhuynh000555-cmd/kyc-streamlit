@@ -201,10 +201,16 @@ def _get_gspread_client():
     return gspread.authorize(creds)
 
 
+def _user_sheets_id():
+    """Sheet ID cho user DB — USERS_SHEETS_ID riêng, fallback SHEETS_ID"""
+    uid = _secret("USERS_SHEETS_ID", "")
+    return uid or _secret("SHEETS_ID", "")
+
+
 def load_users_from_sheet():
     """Đọc tab Users từ Google Sheet, fallback default admin"""
     try:
-        sheets_id = _secret("SHEETS_ID")
+        sheets_id = _user_sheets_id()
         if not sheets_id:
             return _default_users()
         client = _get_gspread_client()
@@ -245,7 +251,7 @@ def load_users_from_sheet():
 
 def save_user_to_sheet(username, password_hash, plain_password, role, centers):
     """Thêm hoặc cập nhật user trong sheet"""
-    sheets_id = _secret("SHEETS_ID")
+    sheets_id = _user_sheets_id()
     if not sheets_id:
         return False
     client = _get_gspread_client()
@@ -275,7 +281,7 @@ def save_user_to_sheet(username, password_hash, plain_password, role, centers):
 
 def delete_user_from_sheet(username):
     """Xóa user khỏi sheet"""
-    sheets_id = _secret("SHEETS_ID")
+    sheets_id = _user_sheets_id()
     if not sheets_id:
         return False
     client = _get_gspread_client()
