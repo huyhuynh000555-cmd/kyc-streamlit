@@ -128,7 +128,7 @@ def render_admin_page():
             c1, c2 = st.columns(2)
             if c1.button("Cập nhật", type="primary", use_container_width=True):
                 centers_val = "*" if (select_all_edit or edit_role in ("admin", "bod")) else ",".join(selected_edit)
-                if add_user(edit_username, edit_pass or "keep", edit_role, centers_val):
+                if add_user(edit_username, edit_pass, edit_role, centers_val):
                     st.success(f"Đã cập nhật '{edit_username}'!")
                     st.rerun()
                 else:
