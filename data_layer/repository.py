@@ -178,7 +178,7 @@ def _get_gspread_client():
         "type": _secret("GCP_TYPE", "service_account"),
         "project_id": _secret("GCP_PROJECT_ID", ""),
         "private_key_id": _secret("GCP_PRIVATE_KEY_ID", ""),
-        "private_key": _secret("GCP_PRIVATE_KEY", "").replace("\\n", "\n"),
+        "private_key": _secret("GCP_PRIVATE_KEY", ""),
         "client_email": _secret("GCP_CLIENT_EMAIL", ""),
         "client_id": _secret("GCP_CLIENT_ID", ""),
         "auth_uri": _secret("GCP_AUTH_URI", "https://accounts.google.com/o/oauth2/auth"),
