@@ -1,12 +1,23 @@
 """Login / logout / admin user management UI."""
 import streamlit as st
+import base64
 from features.auth.logic import validate_login, add_user, remove_user, load_users_from_sheet
+
+# Cache logo base64
+@st.cache_resource
+def _logo_b64():
+    with open("static/logo.png", "rb") as f:
+        return base64.b64encode(f.read()).decode()
 
 
 def render_login() -> bool:
     """Render login page."""
+    logo = _logo_b64()
     st.markdown(
-        "<h1 style='text-align:center;color:#1A3C5E;margin-top:60px;'>KYC DASHBOARD</h1>"
+        f"<div style='text-align:center;margin-top:30px;'>"
+        f"<img src='data:image/png;base64,{logo}' style='width:280px;'>"
+        f"</div>"
+        "<h1 style='text-align:center;color:#1A3C5E;margin-top:10px;'>KYC DASHBOARD</h1>"
         "<p style='text-align:center;color:#888;font-size:14px;'>Đăng nhập để tiếp tục</p>",
         unsafe_allow_html=True,
     )
@@ -37,6 +48,12 @@ def render_sidebar_header():
     centers = user.get("centers", ["*"])
 
     center_label = "Toàn hệ thống" if "*" in centers else ", ".join(centers)
+    st.sidebar.markdown(
+        f"<div style='text-align:center;margin-bottom:10px;'>"
+        f"<img src='data:image/png;base64,{_logo_b64()}' style='width:140px;'>"
+        f"</div>",
+        unsafe_allow_html=True,
+    )
     st.sidebar.markdown(
         f"""<div style="padding:8px 0;border-bottom:1px solid #f0f0f0;margin-bottom:8px;">
             <div style="font-size:11px;color:#888;">Đã đăng nhập</div>
