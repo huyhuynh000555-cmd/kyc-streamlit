@@ -16,6 +16,8 @@ MULTI_SELECT_COLS = ["Interest", "Problem", "Goal", "Target Destination"]
 
 def load_data():
     """Đọc raw wide format → trả về (students_df, multi_df)"""
+    global _last_update_cache
+    _last_update_cache = None  # ponytail: invalidate cache on each load
     raw = _read_raw_wide()
 
     # ── 1. students_df: single-value columns ──
@@ -197,9 +199,35 @@ def _get_gspread_client():
         "auth_uri": _secret("GCP_AUTH_URI", "https://accounts.google.com/o/oauth2/auth"),
         "token_uri": _secret("GCP_TOKEN_URI", "https://oauth2.googleapis.com/token"),
     }
-    scope = ["https://www.googleapis.com/auth/spreadsheets"]
+    scope = [
+        "https://www.googleapis.com/auth/spreadsheets",
+        "https://www.googleapis.com/auth/drive.metadata.readonly",
+    ]
     creds = Credentials.from_service_account_info(creds_info, scopes=scope)
     return gspread.authorize(creds)
+
+
+_last_update_cache = None  # ponytail: simple cache, invalidate on each load
+
+def get_last_update_time() -> str:
+    """Lấy ngày cập nhật cuối của data sheet, format dd/mm/yyyy."""
+    global _last_update_cache
+    if _last_update_cache:
+        return _last_update_cache
+    try:
+        gc = _get_gspread_client()
+        sid = _secret("SHEETS_ID", "")
+        if sid:
+            sh = gc.open_by_key(sid)
+            ts = sh.get_lastUpdateTime()
+            if ts:
+                from datetime import datetime
+                dt = datetime.fromisoformat(ts.replace("Z", "+00:00"))
+                _last_update_cache = dt.strftime("%d/%m/%Y")
+                return _last_update_cache
+    except Exception:
+        pass
+    return "N/A"
 
 
 def _user_sheets_id():

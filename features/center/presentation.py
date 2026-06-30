@@ -5,6 +5,7 @@ from core.constants import COLOR_PRIMARY, COLORS_CATEGORY
 from core.utils import metric_card, styled_header, section_header, fmt_num
 from features.charts.pie_chart import create_learning_history_pie, create_pie_chart, create_coverage_pie
 from features.charts.bar_chart import create_horizontal_bar, create_top_n_bar, create_parent_job_bar
+from data_layer.repository import get_last_update_time
 
 
 def render_center(students_all, multi_all, center_name):
@@ -16,10 +17,11 @@ def render_center(students_all, multi_all, center_name):
         st.warning(f"Không có dữ liệu cho center {center_name} với bộ lọc hiện tại.")
         return
 
+    last_update = get_last_update_time()
     total_students = len(students)
     avg_age = students["Age"].dropna().mean()
     study_abroad = students[students["Có Du Học"] == "Có"]["Student ID"].nunique()
-    styled_header(f"CENTER: {center_name.upper()}", f"{fmt_num(total_students)} học viên | Cập nhật: 08/06/2026")
+    styled_header(f"CENTER: {center_name.upper()}", f"{fmt_num(total_students)} học viên | Cập nhật: {last_update}")
 
     # ── Row 1: Scorecards ──
     cols = st.columns(4)
